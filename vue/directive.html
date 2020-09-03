@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+    <meta charset='UTF-8'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+    <title>Document</title>
+</head>
+<body>
+    <div id='app'>
+        {{msg}}<input type="text" v-model='email' v-email.lazy='email'>邮箱<br>
+        
+        {{pwMsg}}<input type="text" v-user='password' v-model='password'>密码：只输入数字字母下划线
+    </div>
+    <script src='../lib/vue.js'></script>
+    <script>
+        var app = new Vue({
+            el: '#app',
+            data: {
+                username: '大黄',
+                age: 18,
+                email:'',
+                msg:'',
+                password: '',
+                pwMsg: ''
+            },
+            directives: {
+                email:(el,binding)=>{
+                    console.log(el);
+                    console.log(binding.value);
+                    var reg = /^[a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$/
+                    console.log(reg.test('1608198396@qq.com'));
+                    console.log(reg.test(binding.value));
+                    if(app){
+                        if(reg.test(binding.value)){
+                            app.msg = '正确'
+                        }else{
+                            app.msg = '蠢货，换一个'
+                        }
+                    }
+
+                },
+                user:(el,binding)=>{
+                    var difficuity = 0
+                    var reg = [/[0-9]/,/[a-z]/,/[A-Z]/,/_/]
+                    console.log(binding.value);
+                    console.log(reg[0].test(binding.value));
+                    reg.forEach((v)=>{
+                        if(v.test(binding.value)){
+                            difficuity++
+                        }
+                    })
+                    if(app){
+                        switch (difficuity){
+                            case 1:
+                                app.pwMsg = '太简单了，蠢货'
+                                break;
+                            case 2:
+                                app.pwMsg = '还可以把'
+                                break;
+                            case 3:
+                                app.pwMsg = '哎呦，不错';
+                                break;
+                            case 4:
+                                app.pwMsg = '我草，牛逼！'
+                                break;
+                            default:
+                                app.pwMsg = '笨蛋重写'
+                                break;
+
+                        }
+                    }
+                    console.log(difficuity);
+                    
+                }
+            }
+        })
+    </script>
+</body>
+</html>
