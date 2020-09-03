@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+    <meta charset='UTF-8'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+    <title>Document</title>
+    <style>
+        *{
+            margin: 0;
+            padding: 0;
+            outline: none;
+            list-style: none;
+        }
+        #app{
+            width: 600px;
+            height: 400px;
+            /* background-color: red; */
+            margin: 0 auto;
+            margin-top: 50px;
+        }
+        .box{
+            width: 100%;
+            height: 50px;
+            /* background-color: skyblue; */
+            display: flex;
+        }
+
+        .box .boxRight{
+            width: 100px;
+            height: 100%;
+            background-color: pink;
+            border: none;
+            cursor: pointer;
+        }
+        .box .boxRight:active{
+            background-color: orange;
+        }
+        .box .boxLeft{
+            flex: 1;
+            border: 1px solid #000;
+            box-sizing: border-box;
+            font-size: 20px;
+            text-indent: 20px;
+        }
+        /* .box .boxCenter{
+            flex: 1;
+            border: 1px solid #000;
+            border-left: none;
+            box-sizing: border-box;
+            font-size: 20px;
+        } */
+        .result{
+            width: 500px;
+            /* height: 400px; */
+            /* background-color: yellow; */
+            /* margin-left: 50px; */
+            padding-left: 20px;
+            padding-right: 20px;
+            box-sizing: border-box;
+            border: 1px solid #000;
+            border-top: none;
+        }
+
+        .result li{
+            width: 100%;
+            height: 40px;
+            line-height: 40px;
+            background-color: #fff;
+            border-bottom: 1px solid #ccc;
+            cursor: pointer;
+        }
+        .localList{
+            height: 20px;
+        }
+        .localList li{
+            padding: 5px;
+            /* background-color: red; */
+            float: left;
+            font-size: 14px;
+            color: #626675;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div id='app'>
+        <ul class='localList'>
+            <li v-for='item in localArr' @click='chooseCity(item)'>{{item}}</li>
+        </ul>
+        <div class='box'>
+            <!-- <div class='boxLeft'></div> -->
+            <input class='boxLeft' v-model.trim='city' placeholder="请输入需要搜索的城市" @keyup.enter='chooseCity()' type="text" >
+            <button class='boxRight' title='快捷键enter'>搜索</button>
+        </div>
+        <ul class='result'>
+            <template v-for='item,index in cityList' >
+                <li :key='index' v-if='index<6' @click='chooseCity(item.name)'>{{item.name}}</li>
+            </template>
+        </ul>
+    </div>
+    <script src='../lib/vue.js'></script>
+    <script src="../lib/city1.js"></script>
+    <script>
+        var app = new Vue({
+            el: '#app',
+            data: {
+                username: '大黄',
+                age: 18,
+                city:'',
+                cityList:[],
+                localArr: new Set()
+            },
+            watch:{
+                city(newVal){
+               
+                    this.cityList = []
+                    if(!!newVal){
+                        var reg = new RegExp("[\\u4E00-\\u9FFF]+","g");
+                        var regNewVal = new RegExp(newVal,'gi')
+                        if(!reg.test(newVal)){
+                            cityList.forEach((v)=>{
+                                if(regNewVal.test(v.pinyin)){
+                                    this.cityList.push(v)
+                                }
+                            })
+                        }else{
+                            cityList.forEach((v)=>{
+                                if(regNewVal.test(v.name)){
+                                    this.cityList.push(v)
+                                }
+                            })
+                        }
+                        // console.log(this.cityList);
+                    }
+                }
+            },
+            methods:{
+                chooseCity(name){
+                    console.log(name);
+
+                    if(name){
+                        this.city = name
+                    }else{
+                        this.city = this.cityList[0].name
+                    }
+                    // this.cityList = []
+                    this.saveLocal(this.city)
+
+                },
+                saveLocal(name){
+                    if(this.localArr.length>5){
+                        this.localArr.shift()
+                    }
+                    this.localArr.add(name)
+                    console.log(this.localArr);
+                    localStorage.setItem('data',JSON.stringify(Array.from(this.localArr)))
+                    console.log(data);
+                }
+            }
+        })
+
+        let data = localStorage.getItem('data')
+        if(data){
+            console.log(JSON.parse(data));
+            app.localArr = new Set(JSON.parse(data))
+        }
+    </script>
+</body>
+</html>
