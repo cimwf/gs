@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+    <meta charset='UTF-8'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+    <title>Document</title>
+    <style>
+        *{
+            margin: 0;
+            padding: 0;
+            outline: none;
+            list-style: none;
+        }
+        #app{
+            width: 600px;
+            height: 400px;
+            /* background-color: red; */
+            margin: 0 auto;
+            margin-top: 40px;
+        }
+        #search{
+            width: 560px;
+            /* height: 100px; */
+            /* background-color: yellow; */
+            margin: 0 auto;
+        }
+        .searchTop{
+            width: 100%;
+            height: 40px;
+            background-color: skyblue;
+            display: flex;
+        }
+        .searchTop input{
+            flex: 1;
+            border: 2px solid #3385ff;
+            border-right: none;
+            font-size: 16px;
+            padding-left: 10px;
+            box-sizing: border-box;
+        }
+        .searchTop button{
+            width: 112px;
+            height: 100%;
+            background-color: #3385ff;
+            /* border: 1px solid #4e6ef2; */
+            border: none;
+            cursor: pointer;
+        }
+        .searchTop button:active{
+            background-color: #4e6ef2;
+        }
+        .searchBottom{
+            width: 100%;
+            height: 20px;
+            /* background-color: pink; */
+            color: #626675;
+            font-size: 12px;
+            position: relative;
+        }
+        .searchBottom>li{
+            float: left;
+            margin-right:10px;
+            width: 100px;
+            /* background-color: red; */
+            height: 100%;
+            line-height: 20px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            cursor: pointer;
+        }
+
+        .menu{
+            position: absolute;
+            width: 100%;
+            background-color: #fff;
+            padding: 0 20px;
+            box-sizing: border-box;
+            border: 1px solid #000;
+            border-top: none;
+
+        }
+        .menu li{
+            width: 100%;
+            height: 40px;
+            font-size: 16px;
+            /* background-color: orange; */
+            line-height: 40px;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            overflow: hidden;
+            color: #000;
+            border-bottom: 1px solid #ccc;
+            cursor: pointer;
+        }
+        .menu li:hover{
+            background-color: orange;
+        }
+        #list{
+            width: 100%;
+            /* height: 200px; */
+            /* background-color: skyblue; */
+            margin-top: 50px;
+            
+        }
+        #list li{
+            width: 100%;
+            height: 50px;
+            /* background-color: green; */
+            display: flex;
+            font-size: 20px;
+            line-height: 50px;
+        }
+        #list li div{
+            width: 50px;
+            height: 50px;
+            background-color: #fff;
+            font-size: 20px;
+            text-align: center;
+            line-height: 50px;
+        }
+        /* #list li div span{
+            font-size: 20px;
+        } */
+        #list li p{
+            width: 100%;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            cursor: pointer;
+        }
+        #list li p:hover{
+            color: #00e;
+        }
+        #list .moreData{
+            cursor: pointer;
+            justify-content: center;
+        }
+        #list .moreData:hover{
+            color: #00e;
+        }
+        #addData{
+            width: 100%;
+            height: 300px;
+            background-color: red;
+        }
+    </style>
+</head>
+<body>
+    <div id='app'>
+        <!-- 搜索 -->
+        <div id='search'>
+            <div class='searchTop'>
+                <input type="text" v-model='userData' @keyup.enter='chooseNews()'>
+                <button @click='chooseNews()'>百度一下</button>  
+            </div>
+            <ul class='searchBottom'>
+                <li v-for='item,index in localArr' :key='index'>{{item}}</li>
+                <ul class='menu'>
+                    <li v-for='item in searchArr' @click='chooseNews(item)'>{{item}}</li>
+                </ul>
+            </ul>
+        </div>
+
+        <!-- list -->
+        <ul id='list'>
+            <template v-for='item,index in newsArr'>
+                <li :key='index' v-show='index<num'>
+                    <div><span>{{index+1}}</span>></div>
+                    <p @click='chooseNews(item.title)'>{{item.title}}</p>
+                </li>
+            </template>
+            <li class='moreData' v-show='num<newsArr.length'><span @click='moreData'>加载更多...</span></li>
+        </ul>
+        <!-- 添加数据 -->
+        <div id='addData'>
+            <div class='searchTop'>
+                <input type="text" v-model='addData'>
+                <button @click='addDataFn'>添加数据</button>  
+            </div>
+        </div>
+    </div>
+    <script src='../lib/vue.js'></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script>
+        var app = new Vue({
+            el: '#app',
+            data: {
+                //请求来的数据
+                newsArr:[],
+                //input的数据
+                userData: '',
+                //搜索到的数组
+                searchArr: [],
+                //10条
+                num: 10,
+                //本地存储
+                localArr: [],
+                //添加数据
+                addData:''
+            },
+            created(){
+                var arr = localStorage.getItem('localNews')
+                if(arr){
+                    this.localArr = JSON.parse(arr)
+                }
+            },
+            async mounted(){
+                this.newsArr = (await axios.get('http://10.9.70.203:5000/news')).data
+                console.log(this.newsArr);
+            },
+            watch:{
+                userData(newVal){
+                    console.log(newVal);
+                    this.searchArr = []
+                    if(newVal){
+                        var reg = new RegExp(newVal,'g')
+                        // console.log(reg);
+                        this.newsArr.forEach((v=>{
+                            // console.log(v.title);
+                            // console.log(reg.test(v.title));
+                            if(reg.test(v.title)){
+                                // console.log(1);
+                                this.searchArr.push(v.title)
+                            }
+                        }))
+                        console.log(this.searchArr);
+                    }
+                }
+            },
+            methods:{
+                chooseNews(title){
+                    if(title){
+                        this.userData = title
+                    }else{
+                        console.log(this.searchArr);
+                        this.userData = this.searchArr[0]
+                    }
+                    this.saveLocal()
+                },
+                saveLocal(){
+                    //判断是否有重复
+                    var isTrue = this.localArr.some(v=>{
+                        return v === this.userData
+                    })
+                    if(!isTrue){
+                        this.localArr.push(this.userData)
+                    }
+                    
+                    localStorage.setItem('localNews',JSON.stringify(this.localArr))
+                },
+                moreData(){
+                    this.num+=10
+                },
+                addDataFn(){
+                    console.log(this.addData);
+                    axios.post('http://10.9.70.203:5000/addNews',{
+                        news: this.addData,
+                    }).then(res=>{
+                        console.log(res);
+                    })
+                }
+            }
+        })
+    </script>
+</body>
+</html>
