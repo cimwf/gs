@@ -11,7 +11,7 @@ module.exports = {
 
     async getNews(req,res){
         let data = await model.find()
-        console.log(data);
+        // console.log(data);
         res.send(data)
     },
 
