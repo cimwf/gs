@@ -13,6 +13,10 @@ class NewsData{
     find(){
         return this.model.find()
     }
+
+    findOne(options){
+        return this.model.findOne(options)
+    }
 }
 
 module.exports = new NewsData

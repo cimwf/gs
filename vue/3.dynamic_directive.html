@@ -184,6 +184,10 @@
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
     <script src="../lib/socket.io.js"></script>
     <script>
+        var socket = io('http://10.9.70.203:5000')
+        socket.on('client',msg=>{
+            console.log('连接成功-'+msg);
+        })
         var app = new Vue({
             el: '#app',
             data: {
@@ -215,7 +219,7 @@
                     console.log(newVal);
                     this.searchArr = []
                     if(newVal){
-                        var reg = new RegExp(newVal,'g')
+                        var reg = new RegExp(newVal,'u')
                         // console.log(reg);
                         this.newsArr.forEach((v=>{
                             // console.log(v.title);
@@ -254,16 +258,13 @@
                     this.num+=10
                 },
                 addDataFn(){
-                    // console.log(this.addData);
-                    // axios.post('http://10.9.70.203:5000/addNews',{
-                    //     news: this.addData,
-                    // }).then(res=>{
-                    //     console.log(res);
-                    //     alert('添加成功')
-                    // })
-                    // var socket = io('http://10.9.70.203:5000/socket')
-                    var socket = io('http://10.9.70.203:5000/')
-                    console.log(socket);
+
+                    socket.emit('server',this.addData)
+                    socket.on('message',(data)=>{
+                        console.log(data);
+                        this.newsArr.push(data)
+                        this.addData = ''
+                    })
                 }
             }
         })
