@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+    <meta charset='UTF-8'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+    <title>Document</title>
+    <style>
+        *{
+            margin: 0;
+            padding: 0;
+            list-style: none;
+            outline: none;
+        }
+        body{
+            background-color: #CDCDCD;
+        }
+        .header{
+            width: 100%;
+            height: 50px;
+            background-color: rgba(47,47,47,0.98);
+        }
+
+        .headerCenter{
+            width: 600px;
+            height: 100%;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .headerLeft{
+            font-size: 24px;
+            height: 100%;
+            line-height: 50px;
+            color: #DDD;
+        }
+
+        .headerInput{
+            width: 60%;
+            height: 24px;
+            border-radius: 5px;
+            text-indent: 10px;
+        }
+
+        .statusCenter{
+            width: 600px;
+            margin: 0 auto;
+            height: 500px;
+            /* background-color: red; */
+        }
+
+        .statusTitle{
+            padding: 20px 0;
+            display: flex;
+            justify-content: space-between;
+        }
+        .statusTitle p{
+            width: 20px;
+            height: 20px;
+            background-color: #E6E6FA;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 20px;
+        }
+
+        .inputBox{
+            width: 100%;
+            height: 32px;
+            border-left-width: 5px;
+            background-color: #fff;
+            display: flex;
+            border-left: 5px solid #629A9C;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.07);
+            margin-bottom: 10px;
+        }
+        .inputBoxBorder{
+            border-left: 5px solid #999;
+            opacity: 0.5;
+        }
+
+        .inputBox .chooseBox{
+            width: 32px;
+            height: 32px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-left: 10px;
+        }
+        .inputBox .chooseBox svg{
+            cursor: pointer;
+        }
+
+        .inputBox .chooseBody{
+            flex: 1;
+            line-height: 32px;
+            margin-left: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div id='app'>
+        <Headers  @add-underway='addUnderWay' ref='header'></Headers>
+        <div class='statusCenter'>
+            <Status title='正在进行' :boxnum='underWayLength'></Status>
+            <Inputbox
+                v-for='msg,index in underWay' 
+                :key = 'index'  
+                :msg = 'msg'
+                :isstatus = 'false'
+                :index = 'index'
+             ></Inputbox>   
+            <Status title='已经完成' :boxnum='alreadyLength'></Status>
+            <Inputbox 
+                v-for='msg,index in already' 
+                :key = 'index+100'  
+                :msg = 'msg'
+                :isstatus='true'
+                :index = 'index'
+            ></Inputbox>
+        </div>
+    </div>
+    <script type='text/x-template' id='header'>
+        <div class='header'>
+            <div class='headerCenter'>
+                <div class='headerLeft'>ToDoList</div>
+                <input class='headerInput' v-model='userData' @keyup.enter='addData' placeholder="添加todolist" type="text">
+            </div>
+        </div>
+    </script>
+    <script type='text/x-template' id='status'>
+        <div class='statusTitle'>
+            <h2>{{title}}</h2>
+            <statusNum :boxnum='boxnum'></statusNum> 
+        </div>
+    </script>
+    <script type='text/x-template' id='statusNum'>
+        <p>{{boxnum}}</p>
+    </script>
+    <script type='text/x-template' id='inputBox'>
+        <div class='inputBox' :class='isstatus ? "inputBoxBorder" : ""'>
+            <Choose :isstatus='isstatus' :index='index'></Choose>
+            <p class='chooseBody'>{{msg}}</p>
+            <Del :isstatus='isstatus' :index='index'></Del>
+        </div>
+    </script>
+
+    <script type='text/x-template' id='choose'>
+        <div class='chooseBox'>
+            <svg @click='getIndex' v-if='!isstatus' t="1599292252543" class="icon" viewBox="0 0 1027 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="778" width="24" height="24"><path d="M853.346039 938.656465c47.061111 0 85.333333-38.272222 85.333333-85.328233V170.661566c0-47.061111-38.272222-85.333333-85.333333-85.333334H170.684473c-47.061111 0-85.333333 38.272222-85.333333 85.333334v682.661565c0 47.061111 38.272222 85.328232 85.333333 85.328233h682.661566m0 85.338434H170.684473c-94.254847 0-170.666667-76.41182-170.666666-170.666667V170.661566c0-94.254847 76.41182-170.666667 170.666666-170.666667h682.661566c94.254847 0 170.666667 76.41182 170.666667 170.666667v682.661565c0 94.254847-76.41182 170.666667-170.666667 170.666667z" p-id="779" fill="#000"></path></svg>
+            <svg @click='getIndex' v-else t="1599292915094" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="942" width="24" height="24"><path d="M853.26848 0.04096H170.65472C76.40576 0.04096 0 76.44672 0 170.69056v682.61888c0 94.24896 76.40576 170.6496 170.65472 170.6496h682.61376c94.24384 0 170.65472-76.40576 170.65472-170.6496V170.69056c0-94.24384-76.41088-170.6496-170.65472-170.6496z m0 341.30944v28.4416h-28.4416v28.4416h-28.4416v28.4416h-28.4416v28.4416h-28.4416v28.4416h-28.4416V512h-28.4416v28.4416h-28.4416v28.4416h-28.4416v28.4416h-28.4416v28.4416h-28.4416v28.4416h-28.4416v28.4416h-28.4416v28.4416h-28.4416v28.4416h-28.4416v28.4416h-28.4416v28.4416h-28.4416v-28.4416h-28.4416v-28.4416h-28.4416v-28.4416h-28.4416v-28.4416h-28.4416v-28.4416h-28.4416v-28.4416h-28.4416v-28.4416h-28.4416v-28.4416h-28.4416V512h28.4416v-28.4416h28.4416V455.1168h28.4416v28.4416h28.4416V512h28.4416v28.4416h28.4416v28.4416h28.4416v28.4416h28.4416v28.4416h28.4416v-28.4416h28.4416v-28.4416h28.4416v-28.4416h28.4416V512h28.4416v-28.4416h28.4416V455.1168h28.4416v-28.4416h28.4416V398.2336h28.4416v-28.4416h28.4416V341.3504h28.4416v-28.4416h28.4416V284.4672h28.4416v-28.4416h28.4416v28.4416h28.4416v28.4416h28.4416v28.4416z" p-id="943" fill="#348bf2"></path></svg>
+        </div>
+    </script>
+    <script type='text/x-template' id='del'>
+        <div class='chooseBox'>
+            <svg @click='getIndex' t="1599293127001" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="4704" width="24" height="24"><path d="M884.363636 46.545455c51.2 0 93.090909 41.890909 93.090909 93.090909v744.727272c0 51.2-41.890909 93.090909-93.090909 93.090909H139.636364c-51.2 0-93.090909-41.890909-93.090909-93.090909V139.636364c0-51.2 41.890909-93.090909 93.090909-93.090909h744.727272z m23.272728 837.818181V139.636364c0-12.613818-10.658909-23.272727-23.272728-23.272728H139.636364c-12.613818 0-23.272727 10.658909-23.272728 23.272728v744.727272c0 12.613818 10.658909 23.272727 23.272728 23.272728h744.727272c12.613818 0 23.272727-10.658909 23.272728-23.272728z m-198.167273-569.832727a34.909091 34.909091 0 0 1 0 49.338182L561.361455 512l148.107636 148.130909a34.909091 34.909091 0 1 1-49.338182 49.338182L512 561.384727l-148.130909 148.130909a34.746182 34.746182 0 0 1-24.669091 10.216728 34.909091 34.909091 0 0 1-24.692364-59.578182L462.661818 512l-148.130909-148.107636a34.909091 34.909091 0 1 1 49.361455-49.361455L512 462.638545l148.107636-148.107636a34.909091 34.909091 0 0 1 49.361455 0z" fill="#ff0000" p-id="4705"></path></svg>
+        </div>
+    </script>
+    <script src='../lib/vue.js'></script>
+    <script>
+
+        const bus = new Vue()
+        var statusNum = {
+            props: ['boxnum'],
+            template: '#statusNum'
+        }
+
+        var Choose = {
+            props: ['isstatus','index'],
+            template: '#choose',
+            mounted(){
+                console.log(this.isstatus);
+            },
+            methods: {
+                getIndex(){
+                    console.log(this.index);
+                    bus.$emit('sendIndex',this.index,this.isstatus)
+                }
+            }
+        }
+
+        var Del = {
+            props: ['isstatus','index'],
+            template: '#del',
+            methods:{
+                getIndex(){
+                    console.log(this.index);
+                    console.log(this.isstatus);
+                    bus.$emit('delData',this.index,this.isstatus)
+                }
+            }
+        }
+
+        var Inputbox = {
+            props:['isstatus','msg','index'],
+            template: '#inputBox',
+            components: {
+                Choose,
+                Del
+            },
+            mounted(){
+                console.log(this.isstatus);
+            },
+          
+        }
+
+      
+
+        Vue.component('Headers',{
+            template: '#header',
+            data(){
+                return{
+                    userData:''
+                }
+            },
+            methods:{
+                addData(){
+                    console.log(this.userData);
+                    if(this.userData){
+                        this.$emit('add-underway',this.userData)
+                        this.userData = ''
+                    }
+                }
+            }
+        })
+
+        Vue.component('Status',{
+            props:['title','boxnum'],
+            template: '#status',
+            components: {
+                statusNum
+            },
+            mounted(){
+                console.log(this['boxnum']);
+            }
+        })
+
+        var app = new Vue({
+            el: '#app',
+            data: {
+                username: '大黄',
+                age: 18,
+                underWay: [],
+                already: [],
+                underWayLength: 0,
+                alreadyLength: 0
+            },
+            components: {
+                Inputbox
+            },
+            mounted(){
+                console.log(this.$refs.header);
+                // 获取点击的下标
+                bus.$on('sendIndex',(index,status)=>{
+                    if(status){//点击的正在进行，让他进入已经完成
+                        var msg = this.already.splice(index,1)
+                        this.underWay.push(...msg)
+                    }else{
+                        var msg = this.underWay.splice(index,1)
+                        this.already.push(...msg)
+                    }
+                  
+                })
+
+                bus.$on('delData',(index,status)=>{
+                    if(status){ //删除已经完成的
+                        this.already.splice(index,1)
+                    }else{ //删除正在进行的
+                        this.underWay.splice(index,1)
+                    }
+                })
+            },
+            methods: {
+                addUnderWay(msg){
+                    this.underWay.push(msg)
+                    console.log(this.underWay);
+                }
+            },
+            watch:{
+                underWay(newVal){
+                    console.log(newVal.length);
+                    this.underWayLength = newVal.length
+                },
+                already(newVal){
+                    this.alreadyLength = newVal.length
+                }
+            }
+        })
+    </script>
+</body>
+</html>

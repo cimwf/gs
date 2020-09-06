@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        *{
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }
+        li{
+            display: flex;
+        }
+    </style>
+</head>
+<body>
+    <div id='app'>
+        <ul>
+            <li v-for='item,index in classList' :key='index'>
+                <p>{{item.username}}</p>|||||||
+                <p>{{item.phone}}</p>
+                <button @click='delUser(item)'>删除</button>
+            </li>
+
+        </ul>
+    </div>
+</body>
+</html>
+<script src='/lib/vue.js'></script>
+<script src='https://unpkg.com/axios/dist/axios.min.js'></script>
+<script>
+    var app = new Vue({
+        el:'#app',
+        data: {
+            classList:[]
+        },
+        async mounted(){
+            var url = '/myClassList'
+            var data = await axios.get(url)
+            console.log(data);
+            this.classList = data.data.data
+        },
+        methods:{
+            async delUser(item){
+                console.log(item);
+                var a = await axios.post('/delUser',item)
+                console.log(a);
+                history.go()
+            }
+        }
+    })
+</script>

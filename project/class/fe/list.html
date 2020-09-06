@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+    <meta charset='UTF-8'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+    <title>Document</title>
+    <style>
+        *{
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }
+        ul{
+            width: 1000px;
+            height: 600px;
+            margin: 0 auto;
+            margin-top: 50px;
+        }
+        li{
+            width: 100%;
+            min-height: 50px;
+            background-color: yellow;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        li div{
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .header{
+            width: 100px ;
+        }
+
+        .header img{
+            width: 100%;
+        }
+        .other{
+            height: 100%;
+            flex: 1;
+        }
+    </style>
+</head>
+<body>
+    <div id='app'>
+        <ul>
+            <div style='float: right;'>总人数：{{count}}</div>
+            <li>
+                <div class='header'>头像</div>
+                <div class='other'>姓名</div>
+                <div class='other'>手机号</div>
+                <div class='other'>性别</div>
+            </li>
+            <li v-for='item in data' :key='item._id'>
+                <div class='header'>
+                    <img :src="'http://10.9.70.203:3000'+item.photoImg" alt="">
+                </div>
+                <div class='other'>{{item.username}}</div>
+                <div class='other'>{{item.phone}}</div>
+                <div class='other'>{{item.sex}}</div>
+            </li>
+        </ul>
+    </div>
+    <script src='../../../lib/vue.js'></script>
+    <script src='https://unpkg.com/axios/dist/axios.min.js'></script>
+    <script>
+        var app = new Vue({
+            el: '#app',
+            data: {
+                username: '大黄',
+                age: 18,
+                data:[],
+                count: 0
+            },
+            async mounted(){
+                var data = await axios.get('http://10.9.70.203:3000/myClassList')
+                console.log(data);
+                this.data = data.data.data
+                this.count = this.data.length
+            }
+        })
+    </script>
+</body>
+</html>
